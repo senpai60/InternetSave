@@ -22,7 +22,6 @@ const itemSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: ["article", "youtube", "image", "pdf", "tweet", "note", "other"],
-      required: true,
       index: true,
     },
 
@@ -93,7 +92,7 @@ const itemSchema = new mongoose.Schema(
 );
 
 // Simple text index for search (MVP)
-itemSchema.index({ title: "text", description: "text", tags: 1 });
+itemSchema.index({ title: "text", description: "text" });
 
 const Item = mongoose.model("Item", itemSchema);
 export default Item;
