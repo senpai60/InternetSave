@@ -26,7 +26,7 @@ document.getElementById("btn").addEventListener("click", async () => {
 
       document.body.appendChild(glowBox);
 
-      // 🔹 Handlers (IMPORTANT: named functions)
+      // 🔹 Handlers
       function handleMouseOver(e) {
         if (!window.saveModeActive) return;
 
@@ -50,11 +50,85 @@ document.getElementById("btn").addEventListener("click", async () => {
         glowBox.style.display = "none";
       }
 
-      // 🔹 Attach listeners
+      // 🔹 NEW: Handle Click
+      // 🔹 NEW: Handle Click (Updated for Responsiveness & URL)
+      function handleClick(e) {
+        if (!window.saveModeActive) return;
+
+        // Don't intercept clicks on our own Exit button
+        if (e.target.id === "saveModeBtn") return;
+
+        // Stop the website's default click behavior
+        e.preventDefault();
+        e.stopPropagation();
+
+        const target = e.target;
+        const rect = target.getBoundingClientRect();
+
+        // 1. Capture current device/viewport size
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const documentWidth = document.documentElement.scrollWidth;
+        const documentHeight = document.documentElement.scrollHeight;
+
+        // 2. Calculate Responsive Positions
+        // Converting pixels to Viewport Width (vw) and Viewport Height (vh)
+        const responsivePosition = {
+          leftVW:
+            parseFloat(((rect.left / viewportWidth) * 100).toFixed(2)) + "vw",
+          topVH:
+            parseFloat(((rect.top / viewportHeight) * 100).toFixed(2)) + "vh",
+          widthVW:
+            parseFloat(((rect.width / viewportWidth) * 100).toFixed(2)) + "vw",
+          heightVH:
+            parseFloat(((rect.height / viewportHeight) * 100).toFixed(2)) +
+            "vh",
+          // Percentage relative to the entire scrollable page (good for absolute positioning)
+          absoluteLeftPercent:
+            parseFloat(
+              (((rect.left + window.scrollX) / documentWidth) * 100).toFixed(2),
+            ) + "%",
+          absoluteTopPercent:
+            parseFloat(
+              (((rect.top + window.scrollY) / documentHeight) * 100).toFixed(2),
+            ) + "%",
+        };
+
+        // 3. Gather all the data
+        const elementData = {
+          url: window.location.href, // Capture the current URL
+          viewport: {
+            width: viewportWidth,
+            height: viewportHeight,
+          },
+          position: {
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+            absoluteTop: rect.top + window.scrollY,
+            absoluteLeft: rect.left + window.scrollX,
+          },
+          responsivePosition: responsivePosition, // Add the calculated responsive layout
+          content: target.innerText || target.value || "No text content",
+          tagName: target.tagName,
+        };
+
+        console.log("Element Saved:", elementData);
+
+        // Copy the data to the user's clipboard
+        navigator.clipboard
+          .writeText(JSON.stringify(elementData, null, 2))
+          .then(() => alert("Element data copied! Check your clipboard."))
+          .catch((err) => console.error("Failed to copy!", err));
+      }
+
+      // 🔹 Attach listeners (Note the 'true' for handleClick to catch it in the capture phase)
       document.addEventListener("mouseover", handleMouseOver);
       document.addEventListener("mouseleave", handleMouseLeave);
+      document.addEventListener("click", handleClick, true);
 
-      // 🔹 Create button
+      // 🔹 Create exit button
       const btn = document.createElement("button");
       btn.id = "saveModeBtn";
       btn.innerText = "Exit Save Mode";
@@ -78,11 +152,10 @@ document.getElementById("btn").addEventListener("click", async () => {
         // ❌ REMOVE listeners
         document.removeEventListener("mouseover", handleMouseOver);
         document.removeEventListener("mouseleave", handleMouseLeave);
+        document.removeEventListener("click", handleClick, true);
 
-        // ❌ remove glow
+        // ❌ remove glow & button
         glowBox.remove();
-
-        // ❌ remove button
         btn.remove();
 
         console.log("Save Mode OFF");

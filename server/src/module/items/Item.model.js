@@ -18,11 +18,46 @@ const itemSchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
-    // article | youtube | image | pdf | tweet | note | other
+    // Added "element" to support your specific extension saves
     type: {
       type: String,
-      enum: ["article", "youtube", "image", "pdf", "tweet", "note", "other"],
+      enum: [
+        "article",
+        "youtube",
+        "image",
+        "pdf",
+        "tweet",
+        "note",
+        "element",
+        "other",
+      ],
       index: true,
+    },
+
+    // 🔹 NEW: Dedicated structure for Extension Element saves
+    elementData: {
+      viewport: {
+        width: Number,
+        height: Number,
+      },
+      position: {
+        top: Number,
+        left: Number,
+        width: Number,
+        height: Number,
+        absoluteTop: Number,
+        absoluteLeft: Number,
+      },
+      responsivePosition: {
+        leftVW: String,
+        topVH: String,
+        widthVW: String,
+        heightVH: String,
+        absoluteLeftPercent: String,
+        absoluteTopPercent: String,
+      },
+      content: String, // The actual text extracted
+      tagName: String, // e.g., 'DIV', 'A', 'P'
     },
 
     // Content / metadata (AI friendly)
@@ -31,10 +66,9 @@ const itemSchema = new mongoose.Schema(
       trim: true,
     },
     sourceMeta: {
-      // extra data per type
-      domain: String, // e.g. medium.com, youtube.com
+      domain: String,
       author: String,
-      durationSeconds: Number, // for youtube
+      durationSeconds: Number,
       thumbnailUrl: String,
     },
 
@@ -51,7 +85,6 @@ const itemSchema = new mongoose.Schema(
       },
     ],
 
-    // For highlights / notes on saved item
     highlights: [
       {
         text: String,
@@ -67,12 +100,10 @@ const itemSchema = new mongoose.Schema(
     ai: {
       summary: String,
       autoTags: [String],
-      // store embedding id / vector ref, not full array in Mongo
       embeddingId: String,
       lastProcessedAt: Date,
     },
 
-    // For resurfacing & stats
     lastAccessedAt: {
       type: Date,
       index: true,
@@ -81,7 +112,6 @@ const itemSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-
     isArchived: {
       type: Boolean,
       default: false,
@@ -91,8 +121,12 @@ const itemSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Simple text index for search (MVP)
-itemSchema.index({ title: "text", description: "text" });
+// Simple text index for search
+itemSchema.index({
+  title: "text",
+  description: "text",
+  "elementData.content": "text",
+});
 
 const Item = mongoose.model("Item", itemSchema);
 export default Item;
