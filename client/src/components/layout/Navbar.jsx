@@ -1,12 +1,15 @@
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const links = [
+  const { user, logout } = useAuth();
+
+  const userlinks = [
     { name: "Home", path: "/" },
     { name: "Saved", path: "/saved" },
     { name: "Dashboard", path: "/dashboard" },
@@ -15,12 +18,33 @@ const Navbar = () => {
     { name: "Logout", path: "/logout" },
   ];
 
+  const guestlinks = [
+    { name: "Home", path: "/" },
+    { name: "Login", path: "/login" },
+    { name: "Register", path: "/register" },
+  ];
+
   const [open, setOpen] = useState(false);
 
-  const handleNavigate = (path) => {
-    navigate(path);
+  const handleNavigate = (path, name) => {
+    if (name === "Logout") {
+      logout();
+      navigate("/");
+    } else {
+      navigate(path);
+    }
     setOpen(false);
   };
+
+  const [links, setLinks] = useState(guestlinks);
+
+  useEffect(() => {
+    if (user) {
+      setLinks(userlinks);
+    } else {
+      setLinks(guestlinks);
+    }
+  }, [user]);
 
   return (
     <nav className="w-full px-10 py-4 flex items-center justify-between fixed z-999">
@@ -51,7 +75,7 @@ const Navbar = () => {
           return (
             <div
               key={i}
-              onClick={() => handleNavigate(link.path)}
+              onClick={() => handleNavigate(link.path, link.name)}
               className={`group w-full px-4 py-2.5 rounded-lg transition-all duration-300 cursor-pointer flex items-center ${
                 isActive ? "bg-black" : "hover:bg-zinc-200"
               }`}
