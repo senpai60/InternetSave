@@ -7,6 +7,7 @@ const ENV_CONFIG = {
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
   EXTENSION_ID: process.env.EXTENSION_ID,
+  PINECONE_API_KEY: process.env.PINECONE_API_KEY,
 };
 
 export default ENV_CONFIG;
