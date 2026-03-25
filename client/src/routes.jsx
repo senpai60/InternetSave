@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomePage from "./pages/home/HomePage";
 import SavedPage from "./pages/saved/SavedPage";
+import DashboardPage from "./pages/dashboard/DashboardPage";
 import MainLayout from "./components/layout/MainLayout";
 
 const router = createBrowserRouter([
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
       {
         path: "/saved",
         element: <SavedPage />,
+      },
+      {
+        path: "/dashboard",
+        element: <DashboardPage />,
       },
     ],
   },
