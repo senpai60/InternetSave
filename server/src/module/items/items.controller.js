@@ -1,11 +1,26 @@
-import { getItemByTitle, saveItemService } from "./items.service.js";
+import {
+  getItemByTitle,
+  saveItemService,
+  getItemsService,
+} from "./items.service.js";
 
 export const saveItemController = async (req, res, next) => {
   try {
-    const { url, title, description, tags, collections, type, content, position, tagName } = req.body;
+    const {
+      url,
+      title,
+      description,
+      tags,
+      collections,
+      type,
+      content,
+      position,
+      tagName,
+    } = req.body;
 
     // The extension sends 'content' and 'position' instead of 'title' for element saves
-    const itemTitle = title || (content ? content.substring(0, 50) + "..." : "Saved Element");
+    const itemTitle =
+      title || (content ? content.substring(0, 50) + "..." : "Saved Element");
     const itemType = type || (content ? "element" : "other");
 
     // Don't error out on existing elements that don't have titles, unless title is explicitly provided
@@ -38,6 +53,19 @@ export const saveItemController = async (req, res, next) => {
     return res.status(200).json({ message: "Item saved successfully", item });
   } catch (error) {
     console.error("Error in saveItemController:", error);
+    next(error);
+  }
+};
+
+export const getItemsController = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const items = await getItemsService(userId);
+    return res
+      .status(200)
+      .json({ message: "Items fetched successfully", items });
+  } catch (error) {
+    console.error("Error in getItemsController:", error);
     next(error);
   }
 };

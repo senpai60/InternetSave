@@ -18,3 +18,12 @@ export const saveItemService = async (itemData) => {
     throw error;
   }
 };
+
+export const getItemsService = async (userId) => {
+  try {
+    const items = await Item.find({ user: userId }).sort({ createdAt: -1 });
+    return items;
+  } catch (error) {
+    throw error;
+  }
+};
