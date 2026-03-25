@@ -1,4 +1,5 @@
-import axios from "axios";
+// Removed the invalid axios import
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "SAVE_ELEMENT") {
     chrome.cookies.get(
@@ -8,12 +9,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           console.error("User is not logged in!");
           return;
         }
-        fetch("http://localhost:8000/api/items", {
-          // Update to your actual save route
+
+        // Updated URL to match your server routes (/items/save)
+        // Note: adjust the `/api/` prefix if your app.js uses something different.
+        fetch("http://localhost:8000/api/items/save", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${cookie.value}`, // Pass token safely
+            Authorization: `Bearer ${cookie.value}`,
           },
           body: JSON.stringify(message.data),
         })
