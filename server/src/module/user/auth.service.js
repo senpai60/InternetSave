@@ -43,3 +43,17 @@ export const loginUserService = async (email, password) => {
     throw error;
   }
 };
+
+export const findUserById = async (id) => {
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const returnedUser = user.toObject();
+    delete returnedUser.password;
+    return returnedUser;
+  } catch (error) {
+    throw error;
+  }
+};

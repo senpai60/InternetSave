@@ -3,10 +3,17 @@
   "name": "Linkora",
   "version": "1.0",
   "description": "Save and organize your links",
-
+  "icons": {
+    "16": "/icons/icon-16.png",
+    "48": "/icons/icon-48.png",
+    "128": "/icons/icon-128.png"
+  },
   "action": {
     "default_popup": "popup.html"
   },
-
-  "permissions": ["activeTab", "scripting"]
+  "permissions": ["activeTab", "scripting", "cookies"],
+  "host_permissions": ["http://localhost:8000/*", "http://localhost:5173/*"],
+  "background": {
+    "service_worker": "background.js"
+  }
 }

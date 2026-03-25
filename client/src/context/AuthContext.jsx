@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
   };
   const verifyUser = async (userData) => {
     const res = await verifyUserApi(userData);
+    console.log(res.data);
     setUser(res.data);
   };
 
