@@ -8,6 +8,7 @@ const ENV_CONFIG = {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
   EXTENSION_ID: process.env.EXTENSION_ID,
   PINECONE_API_KEY: process.env.PINECONE_API_KEY,
+  GEMINI_EMBEDDING_KEY: process.env.GEMINI_EMBEDDING_KEY,
 };
 
 export default ENV_CONFIG;

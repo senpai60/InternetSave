@@ -1,5 +1,5 @@
 import Item from "./Item.model.js";
-
+import geminiEmbeddingService from "./gemini.service.js";
 import PineConeService from "./pincone.service.js";
 
 // Dummy embedding generator placeholder.
@@ -32,33 +32,35 @@ export const saveItemService = async (itemData) => {
       }`;
 
       // 1. Generate Embedding
-      const vector = await generateEmbedding(textToEmbed);
+      const vector = await geminiEmbeddingService(textToEmbed);
+      console.log("Vectors going to Pinecone:", vector);
 
       // 2. Insert mapped payload to Pinecone
-      const pineconeIndex = PineConeService.index("standard-dense-js");
-      await pineconeIndex.upsert([
-        {
-          id: vectorId,
-          values: vector,
-          metadata: {
-            title: item.title,
-            url: item.url,
-            type: item.type || "unknown",
-            userId: item.user ? item.user.toString() : "anonymous",
+      const pineconeIndex = PineConeService.index("gemini-dense-3072-js");
+      await pineconeIndex.upsert({
+        records: [
+          {
+            id: vectorId,
+            values: vector,
+            metadata: {
+              title: item.title,
+              url: item.url,
+              type: item.type || "unknown",
+              userId: item.user ? item.user.toString() : "anonymous",
+            },
           },
-        },
-      ]);
+        ],
+      });
 
       // 3. Connect Pinecone relationship to MongoDB Item
       item.ai = {
-         ...item.ai,
-         embeddingId: vectorId,
-         lastProcessedAt: new Date()
+        ...item.ai,
+        embeddingId: vectorId,
+        lastProcessedAt: new Date(),
       };
       await item.save();
-
     } catch (pineconeError) {
-       console.error("Vector DB Insertion Error: ", pineconeError);
+      console.error("Vector DB Insertion Error: ", pineconeError);
     }
 
     return item;

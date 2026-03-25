@@ -5,9 +5,9 @@ const PineConeService = new Pinecone({ apiKey: ENV_CONFIG.PINECONE_API_KEY });
 
 try {
   await PineConeService.createIndex({
-    name: "standard-dense-js",
+    name: "gemini-dense-3072-js",
     vectorType: "dense",
-    dimension: 1536,
+    dimension: 3072, // Gemini-embedding-001 strictly uses 3072 dimensions
     metric: "cosine",
     spec: {
       serverless: {
@@ -18,13 +18,13 @@ try {
     deletionProtection: "disabled",
     tags: { environment: "development" },
   });
-  console.log("Pinecone index 'standard-dense-js' successfully created!");
+  console.log("Pinecone index 'gemini-dense-3072-js' successfully created!");
 } catch (error) {
   // Ignore ALREADY_EXISTS errors so the server doesn't crash on restart.
   if (!error.message || !error.message.includes("ALREADY_EXISTS")) {
     console.error("Error creating Pinecone index:", error);
   } else {
-    console.log("Pinecone index 'standard-dense-js' already exists.");
+    console.log("Pinecone index 'gemini-dense-3072-js' already exists.");
   }
 }
 
