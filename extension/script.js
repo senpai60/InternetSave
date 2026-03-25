@@ -76,7 +76,9 @@ document.getElementById("btn").addEventListener("click", async () => {
 
     modal.innerHTML = `
           <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #00f2ff;">Save to Linkora</h3>
-          <label style="display: block; font-size: 12px; margin-bottom: 5px; color: #aaa;">Content / Text</label>
+          <label style="display: block; font-size: 12px; margin-bottom: 5px; color: #aaa;">Title</label>
+          <input type="text" id="linkora-title" placeholder="Enter title manually..." style="width: 100%; padding: 8px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #444; background: #2a2a3a; color: #fff; box-sizing: border-box;">
+          <label style="display: block; font-size: 12px; margin-bottom: 5px; color: #aaa;">Content / Media Src</label>
           <textarea id="linkora-content" style="width: 100%; height: 80px; margin-bottom: 15px; padding: 8px; border-radius: 4px; border: 1px solid #444; background: #2a2a3a; color: #fff; box-sizing: border-box; resize: none;">${elementData.content}</textarea>
           <label style="display: block; font-size: 12px; margin-bottom: 5px; color: #aaa;">Source URL</label>
           <input type="text" id="linkora-url" value="${elementData.url}" style="width: 100%; padding: 8px; margin-bottom: 20px; border-radius: 4px; border: 1px solid #444; background: #2a2a3a; color: #fff; box-sizing: border-box;">
@@ -94,6 +96,7 @@ document.getElementById("btn").addEventListener("click", async () => {
 
     document.getElementById("linkora-save-btn").onclick = (e) => {
       e.preventDefault();
+      elementData.title = document.getElementById("linkora-title").value;
       elementData.content = document.getElementById("linkora-content").value;
       elementData.url = document.getElementById("linkora-url").value;
 
@@ -108,7 +111,6 @@ document.getElementById("btn").addEventListener("click", async () => {
   function handleClick(e) {
     if (!window.saveModeActive) return;
 
-    // Corrected to use a class selector (.) instead of ID (#)
     if (e.target.closest(".linkora-extension-ui")) return;
 
     e.preventDefault();
@@ -118,8 +120,34 @@ document.getElementById("btn").addEventListener("click", async () => {
     const rect = target.getBoundingClientRect();
     glowBox.style.display = "none";
 
+    const url = window.location.href;
+    let extractedContent = "";
+
+    if (url.includes("youtube.com")) {
+      const video = target.closest("video") || document.querySelector("video");
+      extractedContent = video ? (video.src || video.currentSrc || url) : url;
+    } else if (url.includes("unsplash.com") || url.includes("pinterest.")) {
+      const img = target.closest("img") || (target.closest("div") && target.closest("div").querySelector("img")) || target.querySelector("img");
+      extractedContent = img ? (img.src || img.currentSrc) : "";
+    } else if (target.tagName === "IMG") {
+      extractedContent = target.src || target.currentSrc;
+    } else if (target.tagName === "VIDEO" || target.tagName === "AUDIO") {
+      extractedContent = target.src || target.currentSrc || (target.querySelector("source") && target.querySelector("source").src);
+    } 
+    
+    if (!extractedContent) {
+      extractedContent = (
+        target.innerText ||
+        target.value ||
+        target.alt ||
+        "No text/media content found"
+      )
+        .trim()
+        .substring(0, 500);
+    }
+
     const elementData = {
-      url: window.location.href,
+      url: url,
       position: {
         top: rect.top,
         left: rect.left,
@@ -128,14 +156,7 @@ document.getElementById("btn").addEventListener("click", async () => {
         absoluteTop: rect.top + window.scrollY,
         absoluteLeft: rect.left + window.scrollX,
       },
-      content: (
-        target.innerText ||
-        target.value ||
-        target.alt ||
-        "No text content"
-      )
-        .trim()
-        .substring(0, 200),
+      content: extractedContent,
       tagName: target.tagName,
     };
 

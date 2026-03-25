@@ -18,10 +18,13 @@ export const saveItemController = async (req, res, next) => {
       tagName,
     } = req.body;
 
-    // The extension sends 'content' and 'position' instead of 'title' for element saves
-    const itemTitle =
-      title || (content ? content.substring(0, 50) + "..." : "Saved Element");
-    const itemType = type || (content ? "element" : "other");
+    // Determine if it's text or media based on content or tagName
+    let itemType = type || "text";
+    if (!type) {
+      if (tagName === "IMG" || tagName === "VIDEO" || tagName === "AUDIO" || (content && content.startsWith("http"))) {
+        itemType = "media";
+      }
+    }
 
     // Don't error out on existing elements that don't have titles, unless title is explicitly provided
     if (title) {
@@ -33,15 +36,16 @@ export const saveItemController = async (req, res, next) => {
 
     const itemPayload = {
       url,
-      title: itemTitle,
+      title: title || (content ? content.substring(0, 50) + "..." : "Saved Element"),
+      content,
       description,
       tags,
       collections,
       type: itemType,
     };
 
-    if (content || position || tagName) {
-      itemPayload.elementData = { content, position, tagName };
+    if (position || tagName) {
+      itemPayload.elementData = { position, tagName };
     }
 
     if (req.user && req.user.id) {

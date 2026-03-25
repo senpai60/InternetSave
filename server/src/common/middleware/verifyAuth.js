@@ -14,6 +14,7 @@ export const verifyAuth = (req, res, next) => {
     req.user = decodedToken;
     next();
   } catch (error) {
+    console.error("verifyAuth Error:", error.message, "| Token:", req.cookies?.token || "No Cookie Token", "| Header:", req.headers.authorization);
     return sendError(res, {
       message: "Invalid or expired token",
       statusCode: 401,

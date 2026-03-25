@@ -18,7 +18,7 @@ const itemSchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
-    // Added "element" to support your specific extension saves
+    // Added "text" and "media" to support new extension extractions
     type: {
       type: String,
       enum: [
@@ -28,18 +28,20 @@ const itemSchema = new mongoose.Schema(
         "pdf",
         "tweet",
         "note",
+        "text",
+        "media",
         "element",
         "other",
       ],
       index: true,
     },
+    content: {
+      type: String,
+      required: true,
+    },
 
     // 🔹 NEW: Dedicated structure for Extension Element saves
     elementData: {
-      viewport: {
-        width: Number,
-        height: Number,
-      },
       position: {
         top: Number,
         left: Number,
@@ -48,15 +50,6 @@ const itemSchema = new mongoose.Schema(
         absoluteTop: Number,
         absoluteLeft: Number,
       },
-      responsivePosition: {
-        leftVW: String,
-        topVH: String,
-        widthVW: String,
-        heightVH: String,
-        absoluteLeftPercent: String,
-        absoluteTopPercent: String,
-      },
-      content: String, // The actual text extracted
       tagName: String, // e.g., 'DIV', 'A', 'P'
     },
 
@@ -125,7 +118,7 @@ const itemSchema = new mongoose.Schema(
 itemSchema.index({
   title: "text",
   description: "text",
-  "elementData.content": "text",
+  content: "text",
 });
 
 const Item = mongoose.model("Item", itemSchema);
